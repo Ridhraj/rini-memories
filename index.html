@@ -163,6 +163,11 @@
     const screenshotBtn = document.getElementById('screenshot-btn');
 
     function startGame() {
+      correctAnswers = 0;
+      currentQuestionIndex = 0;
+      bestThingAnswer = "";
+      resultContainer.innerHTML = '';
+      bestThingAnswerContainer.innerHTML = '';
       showQuestion(questions[currentQuestionIndex]);
     }
 
@@ -233,14 +238,7 @@
         const retryButton = document.createElement('button');
         retryButton.innerText = 'Try Again';
         retryButton.classList.add('btn');
-        retryButton.addEventListener('click', () => {
-          correctAnswers = 0;
-          currentQuestionIndex = 0;
-          bestThingAnswer = "";
-          resultContainer.innerHTML = '';
-          bestThingAnswerContainer.innerHTML = '';
-          startGame();
-        });
+        retryButton.addEventListener('click', startGame); // Correct retry functionality
         resultContainer.appendChild(retryButton);
       }
     }
