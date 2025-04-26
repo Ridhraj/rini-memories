@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Welcome to team Rini💖</title>
 
-  <!-- Beautiful romantic font -->
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
+  <!-- Readable romantic font -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Sacramento&display=swap" rel="stylesheet">
 
   <style>
     body {
-      font-family: 'Dancing Script', cursive;
+      font-family: 'Roboto', sans-serif;
       text-align: center;
       background-color: #ffe6f0;
       padding: 50px;
@@ -20,7 +20,7 @@
       margin: 20px;
       font-size: 28px;
     }
-    .btn, .submit-btn, .screenshot-btn {
+    .btn, .submit-btn, .screenshot-btn, .skip-btn, .retry-btn {
       background-color: #ff66a3;
       color: white;
       border: none;
@@ -30,7 +30,7 @@
       border-radius: 10px;
       cursor: pointer;
     }
-    .btn:hover, .submit-btn:hover, .screenshot-btn:hover {
+    .btn:hover, .submit-btn:hover, .screenshot-btn:hover, .skip-btn:hover, .retry-btn:hover {
       background-color: #ff3385;
     }
     input[type="text"] {
@@ -63,7 +63,7 @@
         width: 100%;
         font-size: 18px;
       }
-      .btn, .submit-btn, .screenshot-btn {
+      .btn, .submit-btn, .screenshot-btn, .skip-btn, .retry-btn {
         font-size: 18px;
         padding: 8px 16px;
       }
@@ -72,28 +72,6 @@
       }
       #best-thing-answer {
         font-size: 20px;
-      }
-    }
-
-    /* Animation hearts */
-    .heart {
-      width: 20px;
-      height: 20px;
-      position: fixed;
-      animation: floatUp 4s ease-in infinite;
-      color: #ff66a3;
-      font-size: 24px;
-      opacity: 0.8;
-    }
-
-    @keyframes floatUp {
-      0% {
-        transform: translateY(0) scale(1);
-        opacity: 1;
-      }
-      100% {
-        transform: translateY(-800px) scale(1.5);
-        opacity: 0;
       }
     }
   </style>
@@ -116,13 +94,14 @@
   <div id="best-thing-answer"></div>
 
   <button class="screenshot-btn" id="screenshot-btn" style="display:none;" onclick="takeScreenshot()">📸 Take Screenshot</button>
+  <button class="retry-btn" id="retry-btn" style="display:none;" onclick="restartGame()">🔄 Retry</button>
 
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <script>
     const questions = [
       {
         type: 'multiple',
-        question: "When did our first conversation happen?",
+        question: "Do you remember the date we first started talking?",
         answers: [
           { text: "3rd February", correct: true },
           { text: "2nd March", correct: false },
@@ -131,7 +110,7 @@
       },
       {
         type: 'multiple',
-        question: "When was our first café date?",
+        question: "When did we first meet up at a café?",
         answers: [
           { text: "6th April", correct: false },
           { text: "7th April", correct: false },
@@ -140,7 +119,7 @@
       },
       {
         type: 'text',
-        question: "What is our favorite song?",
+        question: "What's 'our' favourite song?",
         correctAnswers: ["perfect"]
       },
       {
@@ -161,6 +140,7 @@
     const resultContainer = document.getElementById('result');
     const bestThingAnswerContainer = document.getElementById('best-thing-answer');
     const screenshotBtn = document.getElementById('screenshot-btn');
+    const retryBtn = document.getElementById('retry-btn');
 
     function startGame() {
       showQuestion(questions[currentQuestionIndex]);
@@ -180,6 +160,14 @@
           button.addEventListener('click', () => selectAnswer(answer.correct));
           answerButtons.appendChild(button);
         });
+        // Add skip button for 2nd and 3rd questions
+        if (currentQuestionIndex === 1 || currentQuestionIndex === 2) {
+          const skipButton = document.createElement('button');
+          skipButton.innerText = "Skip";
+          skipButton.classList.add('skip-btn');
+          skipButton.addEventListener('click', skipQuestion);
+          answerButtons.appendChild(skipButton);
+        }
       } else if (question.type === 'text') {
         textAnswerContainer.style.display = 'block';
       }
@@ -188,6 +176,8 @@
     function selectAnswer(isCorrect) {
       if (isCorrect) {
         correctAnswers++;
+      } else {
+        showResult(false); // Show result on wrong answer
       }
       nextQuestion();
     }
@@ -202,8 +192,15 @@
         correctAnswers++;
       } else if (currentQuestion.correctAnswers.includes(userAnswerLower)) {
         correctAnswers++;
+      } else {
+        showResult(false); // Show result on wrong answer
+        return;
       }
 
+      nextQuestion();
+    }
+
+    function skipQuestion() {
       nextQuestion();
     }
 
@@ -216,20 +213,20 @@
       }
     }
 
-    function showResult() {
+    function showResult(correct = true) {
       questionContainer.style.display = 'none';
       answerButtons.style.display = 'none';
       textAnswerContainer.style.display = 'none';
 
-      if (correctAnswers === questions.length) {
+      if (correct) {
         resultContainer.innerHTML = "🎉 You remembered every little piece of our love story! 🎉<br><br><strong>💖💖💖</strong>";
         if (bestThingAnswer.trim() !== "") {
           bestThingAnswerContainer.innerHTML = "<br>Your feelings in your own words:<br>✨ " + bestThingAnswer + " ✨";
         }
         screenshotBtn.style.display = 'inline-block';
-        createHearts(); // Start animation
       } else {
         resultContainer.innerHTML = "😉 Almost there, Try Again! Let's jog those sweet memories again! 😉";
+        retryBtn.style.display = 'inline-block';
       }
     }
 
@@ -242,21 +239,14 @@
       });
     }
 
-    function createHearts() {
-      const colors = ['#ff66a3', '#ff99cc', '#ff6699'];
-      for (let i = 0; i < 30; i++) {
-        const heart = document.createElement('div');
-        heart.classList.add('heart');
-        heart.innerText = '💖';
-        heart.style.left = Math.random() * 100 + "vw";
-        heart.style.animationDuration = (2 + Math.random() * 3) + "s";
-        heart.style.color = colors[Math.floor(Math.random() * colors.length)];
-        document.body.appendChild(heart);
-
-        setTimeout(() => {
-          heart.remove();
-        }, 5000);
-      }
+    function restartGame() {
+      currentQuestionIndex = 0;
+      correctAnswers = 0;
+      bestThingAnswer = "";
+      resultContainer.innerHTML = "";
+      bestThingAnswerContainer.innerHTML = "";
+      retryBtn.style.display = 'none';
+      startGame();
     }
 
     startGame();
