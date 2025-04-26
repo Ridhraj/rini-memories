@@ -10,7 +10,7 @@
 
   <style>
     body {
-      font-family: 'La Belle Aurore', cursive; /* Using La Belle Aurore for a romantic look */
+      font-family: 'La Belle Aurore', cursive;
       text-align: center;
       background-color: #ffe6f0;
       padding: 50px;
@@ -20,7 +20,7 @@
       margin: 20px;
       font-size: 28px;
     }
-    .btn, .submit-btn, .screenshot-btn {
+    .btn, .submit-btn, .screenshot-btn, .retry-btn {
       background-color: #ff66a3;
       color: white;
       border: none;
@@ -30,7 +30,7 @@
       border-radius: 10px;
       cursor: pointer;
     }
-    .btn:hover, .submit-btn:hover, .screenshot-btn:hover {
+    .btn:hover, .submit-btn:hover, .screenshot-btn:hover, .retry-btn:hover {
       background-color: #ff3385;
     }
     input[type="text"] {
@@ -63,7 +63,7 @@
         width: 100%;
         font-size: 18px;
       }
-      .btn, .submit-btn, .screenshot-btn {
+      .btn, .submit-btn, .screenshot-btn, .retry-btn {
         font-size: 18px;
         padding: 8px 16px;
       }
@@ -115,6 +115,7 @@
   <div id="result"></div>
   <div id="best-thing-answer"></div>
 
+  <button class="retry-btn" id="retry-btn" style="display:none;" onclick="retryGame()">🔄 Retry</button>
   <button class="screenshot-btn" id="screenshot-btn" style="display:none;" onclick="takeScreenshot()">📸 Take Screenshot</button>
 
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -140,7 +141,7 @@
       },
       {
         type: 'text',
-        question: "What's 'our' favorite song?",
+        question: "What's 'our' favourite song?",
         correctAnswers: ["perfect"]
       },
       {
@@ -161,14 +162,15 @@
     const resultContainer = document.getElementById('result');
     const bestThingAnswerContainer = document.getElementById('best-thing-answer');
     const screenshotBtn = document.getElementById('screenshot-btn');
+    const retryBtn = document.getElementById('retry-btn');
 
     function startGame() {
-      correctAnswers = 0;
       currentQuestionIndex = 0;
+      correctAnswers = 0;
       bestThingAnswer = "";
-      resultContainer.innerHTML = '';
-      bestThingAnswerContainer.innerHTML = '';
       showQuestion(questions[currentQuestionIndex]);
+      resultContainer.innerHTML = '';
+      retryBtn.style.display = 'none';
     }
 
     function showQuestion(question) {
@@ -193,6 +195,8 @@
     function selectAnswer(isCorrect) {
       if (isCorrect) {
         correctAnswers++;
+      } else {
+        showRetryPage();
       }
       nextQuestion();
     }
@@ -207,6 +211,8 @@
         correctAnswers++;
       } else if (currentQuestion.correctAnswers.includes(userAnswerLower)) {
         correctAnswers++;
+      } else {
+        showRetryPage();
       }
 
       nextQuestion();
@@ -229,18 +235,26 @@
       if (correctAnswers === questions.length) {
         resultContainer.innerHTML = "🎉 You remembered every little piece of our love story! 🎉<br><br><strong>💖💖💖</strong>";
         if (bestThingAnswer.trim() !== "") {
-          bestThingAnswerContainer.innerHTML = "<br>Your feelings in your own words:<br>✨ " + bestThingAnswer + " ✨";
+          bestThingAnswerContainer.innerHTML = "<br> See, you’ve captured every beautiful detail of our bond <br>✨ " + bestThingAnswer + " ✨";
         }
         screenshotBtn.style.display = 'inline-block';
         createHearts(); // Start animation
       } else {
         resultContainer.innerHTML = "😉 Almost there, Try Again! Let's jog those sweet memories again! 😉";
-        const retryButton = document.createElement('button');
-        retryButton.innerText = 'Try Again';
-        retryButton.classList.add('btn');
-        retryButton.addEventListener('click', startGame); // Correct retry functionality
-        resultContainer.appendChild(retryButton);
+        retryBtn.style.display = 'inline-block';
       }
+    }
+
+    function showRetryPage() {
+      questionContainer.style.display = 'none';
+      answerButtons.style.display = 'none';
+      textAnswerContainer.style.display = 'none';
+      resultContainer.innerHTML = "😢 Oops! That answer was incorrect. Would you like to try again? 😢";
+      retryBtn.style.display = 'inline-block';
+    }
+
+    function retryGame() {
+      startGame();
     }
 
     function takeScreenshot() {
@@ -269,7 +283,7 @@
       }
     }
 
-    startGame();
+    startGame(); // Start the game initially
   </script>
 
 </body>
